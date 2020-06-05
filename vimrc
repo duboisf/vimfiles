@@ -39,10 +39,10 @@ end
 call plug#begin('~/.local/share/nvim/plugged')
 
 " Make sure you use single quotes
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'preservim/nerdtree'
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'tpope/vim-fugitive'
-Plug 'scrooloose/nerdcommenter'
+Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-markdown'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
@@ -63,9 +63,13 @@ Plug 'sebdah/vim-delve'
 Plug 'hashivim/vim-terraform'
 Plug 'stephpy/vim-yaml'
 Plug 'dense-analysis/ale'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-" fzf plugin: requires 'brew install the_silver_searcher' for Ag search
-Plug '/usr/local/opt/fzf'
+Plug 'neoclide/coc.nvim', { 'branch': 'release'}
+" Using junegunn/fzf will allow the vim plugin to pick up the fzf binary
+" available on the system. If fzf is not found on $PATH, it will ask you if it
+" should download the latest binary for you.
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" junegunn/fzf.vim plugin requires
+" https://github.com/ggreer/the_silver_searcher for Ag search
 Plug 'junegunn/fzf.vim'
 
 "Themes
@@ -73,6 +77,7 @@ Plug 'tomasr/molokai'
 Plug 'zeis/vim-kolor'
 Plug 'nightsense/wonka'
 Plug 'romainl/Apprentice'
+Plug 'altercation/vim-colors-solarized'
 
 Plug 'tsandall/vim-rego'
 Plug 'Chiel92/vim-autoformat'
@@ -104,19 +109,10 @@ endif
 
 " Vim configs
 
-" Kolor config
-let g:kolor_italic=1
-let g:kolor_bold=1
-let g:kolor_underlined=0
-let g:kolor_alternative_matchparen=0
-let g:kolor_inverted_matchparen=0
-
-" Other nice colorschemes to try: molokai, fruity 
-colorscheme kolor
-
 set nowrap
 set clipboard=unnamed       " y yy d works with system clipboard
 set cursorline              " highlight current line
+set cursorcolumn
 set relativenumber
 set fillchars+=vert:\ 
 let mapleader=" "
@@ -160,6 +156,24 @@ set smartcase       " Do smart case matching
 "set virtualedit=all
 compiler ruby
 
+" ***********
+" Functions *
+" ***********
+
+function! s:get_visual_selection()
+    " Why is this not a built-in Vim script function?!
+    let [line_start, column_start] = getpos("'<")[1:2]
+    let [line_end, column_end] = getpos("'>")[1:2]
+    let lines = getline(line_start, line_end)
+    if len(lines) == 0
+        return ''
+    endif
+    let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
+    let lines[0] = lines[0][column_start - 1:]
+    return join(lines, "\n")
+endfunction
+
+vnoremap <leader>i :echo <SID>get_visual_selection()<CR>
 " ****************
 " Plugin configs *
 " ****************
@@ -233,6 +247,7 @@ let g:nvim_typescript#default_mappings = 1
 
 " fzf configuration
 nmap <Leader>f :Ag!<CR>
+let g:fzf_preview_window = 'down:20%'
 
 " vim-go configuration
 au FileType go set noexpandtab
@@ -354,8 +369,8 @@ nnoremap <leader>. 10<C-W>>
 nnoremap <leader>, 10<C-W><
 
 "" Maps for tabs specific funcionalities
-nnoremap L :tabnext<CR>
-nnoremap H :tabprevious<CR>
+"nnoremap L :tabnext<CR>
+"nnoremap H :tabprevious<CR>
 noremap <M-t> :tabnew<CR>
 
 "" Omni completion maps
@@ -381,7 +396,7 @@ nnoremap <leader>w :TagbarToggle<CR>
 nnoremap <silent><leader>gj :%!python -m json.tool<CR>
 
 "" CtrlP buffer
-nnoremap <C-i> :CtrlPBuffer<CR>
+"nnoremap <C-i> :CtrlPBuffer<CR>
 
 " Diff mode colorscheme toggle
 " The two buffers to be diffed must be in vsplit
@@ -421,6 +436,8 @@ nnoremap <silent> <leader>z :e $HOME/.zshrc<CR>
 nnoremap <silent> <leader>r :source $MYVIMRC<CR>:echo 'Vim configs reloaded!' <CR>
 nnoremap <silent><leader>a ggvG$
 
+vnoremap <leader>y "+y
+
 inoremap <silent><C-Del> <ESC>dea
 inoremap <C-a> <ESC>ggvG$
 inoremap <silent><C-Del> <ESC>dea
@@ -440,5 +457,11 @@ imap <F1> <C-o>:echo<CR>
 tnoremap <Esc> <C-\><C-n>
 
 "" Set color almost invisible color for Special Characters
-highlight NonText         guifg=#383838    guibg=#2e2d2b    gui=none
-highlight NonText         ctermfg=237      ctermbg=235      cterm=none
+"highlight NonText         guifg=#383838    guibg=#2e2d2b    gui=none
+"highlight NonText         ctermfg=237      ctermbg=235      cterm=none
+
+" Make 'set list' chars stand out less
+let g:solarized_visibility="low"
+" Other nice colorschemes to try: molokai, fruity 
+colorscheme solarized
+
