@@ -46,14 +46,14 @@ Plug 'preservim/nerdcommenter'
 Plug 'tpope/vim-markdown'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'vim-ruby/vim-ruby'
+"Plug 'vim-ruby/vim-ruby'
 Plug 'tpope/vim-cucumber'
-Plug 'leoluz/xmledit'
+"Plug 'leoluz/xmledit'
 Plug 'kien/ctrlp.vim'
-Plug 'jistr/vim-nerdtree-tabs'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'tfnico/vim-gradle'
+"Plug 'jistr/vim-nerdtree-tabs'
+"Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline-themes'
+"Plug 'tfnico/vim-gradle'
 Plug 'majutsushi/tagbar'
 Plug 'martinda/Jenkinsfile-vim-syntax'
 Plug 'qpkorr/vim-bufkill'
@@ -62,7 +62,7 @@ Plug 'cohama/lexima.vim'
 Plug 'sebdah/vim-delve'
 Plug 'hashivim/vim-terraform'
 Plug 'stephpy/vim-yaml'
-Plug 'dense-analysis/ale'
+"Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim', { 'branch': 'release'}
 " Using junegunn/fzf will allow the vim plugin to pick up the fzf binary
 " available on the system. If fzf is not found on $PATH, it will ask you if it
@@ -156,6 +156,12 @@ set smartcase       " Do smart case matching
 "set virtualedit=all
 compiler ruby
 
+" jump to the last position when reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g'\"" | endif
+endif
+
 " ***********
 " Functions *
 " ***********
@@ -228,6 +234,7 @@ let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_open_multi = '1'
 let g:ctrlp_arg_map = 1
 let g:ctrlp_max_depth = 50
+let g:ctrlp_show_hidden = 1
 
 " Taglist configuration
 let Tlist_Compact_Format = 1
@@ -292,8 +299,6 @@ au FileType go nmap <Leader>i <Plug>(go-info)
 
 " Ale configuration
 let g:ale_set_highlights = 0
-let g:ale_sign_warning = '⚠️'
-let g:ale_sign_error = '❌'
 let g:ale_echo_msg_format = '[%linter%] %s'
 let g:airline#extensions#ale#enabled = 1
 au FileType go nmap <silent> gp :ALEPreviousWrap<CR>
@@ -437,6 +442,7 @@ nnoremap <silent> <leader>r :source $MYVIMRC<CR>:echo 'Vim configs reloaded!' <C
 nnoremap <silent><leader>a ggvG$
 
 vnoremap <leader>y "+y
+noremap <F10> <ESC>:qa!<CR>
 
 inoremap <silent><C-Del> <ESC>dea
 inoremap <C-a> <ESC>ggvG$
@@ -462,6 +468,6 @@ tnoremap <Esc> <C-\><C-n>
 
 " Make 'set list' chars stand out less
 let g:solarized_visibility="low"
-" Other nice colorschemes to try: molokai, fruity 
+" Other nice colorschemes to try: molokai, fruity
 colorscheme solarized
 
