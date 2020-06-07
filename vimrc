@@ -34,9 +34,17 @@ end
 " ****************
 " Plugin Section *
 " ****************
-"
+
+" Install vim-plug automatically
+let s:plug_vim_path = stdpath('data') . '/site/autoload/plug.vim'
+if !filereadable(s:plug_vim_path)
+  silent execute "!curl -fLo " . s:plug_vim_path . " --create-dirs " .
+    \ "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
 " Specify a directory for plugins
-call plug#begin('~/.local/share/nvim/plugged')
+call plug#begin(stdpath('data') . '/plugged')
 
 " Make sure you use single quotes
 Plug 'preservim/nerdtree'
@@ -47,20 +55,20 @@ Plug 'tpope/vim-markdown'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 "Plug 'vim-ruby/vim-ruby'
-Plug 'tpope/vim-cucumber'
+"Plug 'tpope/vim-cucumber'
 "Plug 'leoluz/xmledit'
 Plug 'kien/ctrlp.vim'
 "Plug 'jistr/vim-nerdtree-tabs'
 "Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
 "Plug 'tfnico/vim-gradle'
-Plug 'majutsushi/tagbar'
-Plug 'martinda/Jenkinsfile-vim-syntax'
-Plug 'qpkorr/vim-bufkill'
-Plug 'Shougo/echodoc.vim'
-Plug 'cohama/lexima.vim'
-Plug 'sebdah/vim-delve'
-Plug 'hashivim/vim-terraform'
+"Plug 'majutsushi/tagbar'
+"Plug 'martinda/Jenkinsfile-vim-syntax'
+"Plug 'qpkorr/vim-bufkill'
+"Plug 'Shougo/echodoc.vim'
+"Plug 'cohama/lexima.vim'
+"Plug 'sebdah/vim-delve'
+"Plug 'hashivim/vim-terraform'
 Plug 'stephpy/vim-yaml'
 "Plug 'dense-analysis/ale'
 Plug 'neoclide/coc.nvim', { 'branch': 'release'}
@@ -120,7 +128,7 @@ set nohlsearch
 set laststatus=2
 set cmdheight=2
 set wildignore+=*.bak,*.pyc,*.py~,*.pdf,*.so,*.gif,*.jpg,*.flv,*.class,*.jar,*.png,*/tools/*,*/docs/*,*.swp,*/.svn/*,*/.git/*
-set wildmode=list:longest
+set wildmode=full
 set wildmenu
 set textwidth=0
 set tabstop=4
@@ -154,7 +162,7 @@ set splitbelow
 set splitright
 set smartcase       " Do smart case matching
 "set virtualedit=all
-compiler ruby
+"compiler ruby
 
 " jump to the last position when reopening a file
 if has("autocmd")
@@ -162,24 +170,6 @@ if has("autocmd")
     \| exe "normal! g'\"" | endif
 endif
 
-" ***********
-" Functions *
-" ***********
-
-function! s:get_visual_selection()
-    " Why is this not a built-in Vim script function?!
-    let [line_start, column_start] = getpos("'<")[1:2]
-    let [line_end, column_end] = getpos("'>")[1:2]
-    let lines = getline(line_start, line_end)
-    if len(lines) == 0
-        return ''
-    endif
-    let lines[-1] = lines[-1][: column_end - (&selection == 'inclusive' ? 1 : 2)]
-    let lines[0] = lines[0][column_start - 1:]
-    return join(lines, "\n")
-endfunction
-
-vnoremap <leader>i :echo <SID>get_visual_selection()<CR>
 " ****************
 " Plugin configs *
 " ****************
@@ -253,12 +243,14 @@ set noshowmode
 let g:nvim_typescript#default_mappings = 1
 
 " fzf configuration
-nmap <Leader>f :Ag!<CR>
+nmap <leader>f :FZF<CR>
+"nmap <Leader>f :Ag!<CR>
 let g:fzf_preview_window = 'down:20%'
 
 " vim-go configuration
 au FileType go set noexpandtab
 au FileType go set nowrap
+let g:go_version_warning = 0
 let g:go_implements_mode = 'gopls'
 let g:go_rename_command = 'gopls'
 "let g:go_imports_autosave = 0 "run goimports on save
@@ -308,6 +300,7 @@ let g:ale_linters = { 'go': ['golint', 'go vet', 'go build', 'gosimple', 'static
 " CoC configuration
 let g:coc_config_home = vimhome
 let g:coc_snippet_next = '<tab>'
+let g:coc_disable_startup_warning = 1
 vmap <TAB> <Plug>(coc-snippets-select)
 au FileType go nmap <silent> gy <Plug>(coc-type-definition)
 au FileType go nmap <silent> gi <Plug>(coc-implementation)
@@ -338,9 +331,9 @@ function! s:check_back_space() abort
 endfunction
 
 " Delve configuration (debug)
-au FileType go nnoremap <F8> :DlvTest<CR>
-au FileType go nnoremap <F9> :DlvToggleBreakpoint<CR>
-au FileType go nnoremap <F10> :DlvClearAll<CR>
+"au FileType go nnoremap <F8> :DlvTest<CR>
+"au FileType go nnoremap <F9> :DlvToggleBreakpoint<CR>
+"au FileType go nnoremap <F10> :DlvClearAll<CR>
 
 " Terraform configuration
 let g:terraform_fmt_on_save=1
